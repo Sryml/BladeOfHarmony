@@ -56,10 +56,10 @@ def CheckFontChineseFallback(elem):
 	font = Language.LetrasMenuBig
 	if elem == "Button":
 		font = Language.LetrasMenuBig
-	if Language.Current == "Chinese":
-		font = Language.LetrasPanel
-		if elem == "Button":
-			font = Language.LetrasPanelButton
+	# if Language.Current == "Chinese":
+	# 	font = Language.LetrasPanel
+	# 	if elem == "Button":
+	# 		font = Language.LetrasPanelButton
 	return font
 
 def CorrectPosX(x):
@@ -82,10 +82,11 @@ def InitWidget(parent, name, text, font, elem):
 	Widget.SetAlpha(1)
 	Widget.SetColor(255,255,255)
 	Widget.SetText(MenuText.GetMenuText(text))
-	fix_scale = Language.Current == "Chinese" and 0.13 or 0.0
-	Widget.SetScale(0.55 * y_scale + fix_scale)
+	if Language.Current == "Chinese" and elem != "Combo" and elem != "Combo2":
+		y_scale = y_scale * 1.25
+	Widget.SetScale(0.55 * y_scale)
 	if elem == "Button":
-		Widget.SetScale(0.61 * y_scale + fix_scale)
+		Widget.SetScale(0.61 * y_scale)
 	elif elem == "Combo" or elem == "Combo2":
 		Widget.SetScale(0.9 * y_scale)
 	elif elem == "Title" and len(text) >= 30:
