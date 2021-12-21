@@ -17,13 +17,20 @@ import sys
 import string
 import Language
 import os
+import Menu
 
 import netgame
+import PanelFillerCommon
+from PanelFillerCommon import relative, relativev, center, bottom, left, right, buttonOffset, buttonTextPosition
 
 #if netgame.GetNetState()==0:
 #  import Scorer
 global isQuitting
 isQuitting = 0
+
+BackButtonY = 100
+BackGamepadButtonY = 70
+AcceptBackY = 40
 
 class Stack:
   def __init__(self):
@@ -217,8 +224,14 @@ class B_MenuFrameWidget(B_MenuFocusManager,BUIx.B_FrameWidget):
     B_MenuFocusManager.AddMenuElement(self,menu_element)
 
 
-    if sep == -1000:
-        self.AddWidget(menu_element,HPos,110,
+    if sep == Menu.BackOptionVSep or sep == Menu.BackGamepadOptionVSep or sep == Menu.GamepadButtonVSep:
+        YPos = BackButtonY
+        if sep == Menu.BackGamepadOptionVSep:
+            YPos = BackGamepadButtonY
+        elif sep == Menu.GamepadButtonVSep:
+            YPos = AcceptBackY
+            menu_element.SetScale(0.7)
+        self.AddWidget(menu_element,HPos,YPos,
                        HIndicator,HAnchor,
                        BUIx.B_FrameWidget.B_FR_AbsoluteBottom,BUIx.B_FrameWidget.B_FR_Top)
     else:
@@ -350,7 +363,7 @@ class B_MenuTreeItem:
     try:
       NewFrame=frame_class(self,self.MenuDescr,self.StackMenu)
       return NewFrame
-    except Exception,e: 
+    except Exception,e:
       print str(e)
       print "Error Creating frame of class",frame_class
 
@@ -461,7 +474,7 @@ class B_MenuSpin(SpinWidget.B_SpinWidget,B_MenuTreeItem):
       SpinWidget.B_SpinWidget.SetSteps(self,s)
     except KeyError:
       pass
-    
+
     try:
       self.SetValueEnd=MenuDescr["SpinSetValueEnd"]
     except KeyError:
@@ -1077,15 +1090,63 @@ class B_BackBlank(BUIx.B_RectWidget):
 		return 0
 
 
-class B_BackWeapon(BUIx.B_RectWidget):
+def SetCombosText(arg):
+  import PanelFillerCombos
+  return PanelFillerCombos.FillCombosText(arg)
+
+def SetAbilitiesText(arg):
+  import PanelFillerAbilities
+  return PanelFillerAbilities.FillAbilitiesText(arg)
+
+def SetSpecialsText(arg):
+  import PanelFillerSpecials
+  return PanelFillerSpecials.FillSpecialsText(arg)
+
+def SetGamepadDisconnectFunc(isDisconnect):
+    import Scorer
+    global wDisconnectGamepadBox
+
+    if isDisconnect == 1:
+        Scorer.wMessageFrame.RemoveWidget("MessageWidget",0)
+
+        wDisconnectGamepadBox=BUIx.B_TextWidget(Scorer.wMessageFrame,"MessageWidget","\n\n\n\n\n",ScorerWidgets.font_server,Language.LetrasMenuBig)
+        wDisconnectGamepadBox.SetAlpha(1)
+        wDisconnectGamepadBox.SetColor(255,255,255)
+        wDisconnectGamepadBox.SetSolid(1)
+        wDisconnectGamepadBox.SetBackgroundAlpha(0.5)
+        wDisconnectGamepadBox.SetBackgroundColor(0,0,0)
+        wDisconnectGamepadBox.SetAutoScale(0)
+
+        import GameText
+        texto = GameText.Textos["Disconnect"][0]
+
+        wDisconnectGamepadBox.SetText(texto)
+        wDisconnectGamepadBox.SetJustification(BUIx.B_TextWidget.B_TEXT_HCenter)
+        wDisconnectGamepadBox.SetBackgroundAlpha(0.5)
+        wDisconnectGamepadBox.SetBackgroundColor(0,0,0)
+        wDisconnectGamepadBox.SetAlpha(1)
+
+        Scorer.wMessageFrame.AddWidget(wDisconnectGamepadBox,0.5,50,
+              BUIx.B_FrameWidget.B_FR_HRelative,
+              BUIx.B_FrameWidget.B_FR_HCenter,
+              BUIx.B_FrameWidget.B_FR_AbsoluteBottom,
+              BUIx.B_FrameWidget.B_FR_Bottom)
+
+    elif isDisconnect == 0:
+        Scorer.wMessageFrame.SetAlpha(0)
+
+    Scorer.wMessageFrame.RecalcLayout()
+
+class B_BackWeapon(BUIx.B_FrameWidget):
 
 	#def __init__(self,Parent,MenuDescr,StackMenu):
 	def __init__(self,Parent,Menudesc,StackMenu,VertPos=0):
 		import Language
 		import GotoMapVars
-
 		self.image = 1
 		self.NumImages = 6
+		self.PanelWidgets = []
+		self.PanelWidgetsName = []
 
 		self.Text = 0
 		self.NumTexts = 4
@@ -1118,22 +1179,21 @@ class B_BackWeapon(BUIx.B_RectWidget):
 			self.addone = 0
 			self.TextsAvail[0] = 1
 
-		language = Language.Current
-		if language == "EnglishUS" or not os.path.exists("../../Data/TB/" + language + "/" + char.Kind + "/plantillaspecials_hi.jpg"):
-			language = "English"
+		language = PanelFillerCommon.GetLanguageFallback()
 		print language
 
 		self.Specials  = BBLib.B_BitMap24()
-		self.Specials.ReadFromFile("../../Data/TB/" + language + "/" + char.Kind + "/plantillaspecials_hi.jpg")
+		self.Specials.ReadFromFile("../../Data/TB/EmptyPanels/" + char.Kind + "/plantillaspecials_hi_empty.jpg")
 
 		self.Items  = BBLib.B_BitMap24()
 		self.Items.ReadFromFile("../../Data/TB/" + language +"/Items/plantillaGitems_hi.jpg")
 
 		self.Weapons  = BBLib.B_BitMap24()
-		self.Weapons.ReadFromFile("../../Data/TB/" + language + "/" + char.Kind + "/plantillaweapons_hi.jpg")
+		self.Weapons.ReadFromFile("../../Data/TB/EmptyPanels/" + char.Kind + "/plantillaweapons_hi_empty.jpg")
+
 
 		self.Habilities  = BBLib.B_BitMap24()
-		self.Habilities.ReadFromFile("../../Data/TB/" + language + "/" + char.Kind + "/plantillahabilities_hi.jpg")
+		self.Habilities.ReadFromFile("../../Data/TB/EmptyPanels/" + char.Kind + "/plantillahabilities_hi_empty.jpg")
 
 		self.MapText  = BBLib.B_BitMap24()
 
@@ -1166,7 +1226,7 @@ class B_BackWeapon(BUIx.B_RectWidget):
 			self.Text3.ReadFromFile("../../Data/TB/" + language  + "/muralnejev_hi.jpg")
 
 
-		BUIx.B_RectWidget.__init__(self,Parent,Menudesc["Name"],self.vidw,self.vidh)
+		BUIx.B_FrameWidget.__init__(self,Parent,Menudesc["Name"],self.vidw,self.vidh)
 
 		self.Selected=0
 		self.Solid=0
@@ -1184,15 +1244,45 @@ class B_BackWeapon(BUIx.B_RectWidget):
 				if self.Text > self.NumTexts - 1:
 					self.Text = 0
 
-	def Draw(self,x,y,time):
-		import string
+		self.SetupPanelWidgets()
+
+	def AddButtonTexts(self, language):
+		sys.path.append('../../SCRIPTS/Combos/' + language)
+		import PanelButtonsLoca
+		index = 0
+		elem = "Button"
+		for text in PanelButtonsLoca.buttons:
+			name = language + elem + text
+			font = PanelFillerCommon.CheckFontChineseFallback(elem)
+			buttonWidget=PanelFillerCommon.InitWidget(self, name, text, font, elem)
+			posX = PanelFillerCommon.CheckButtonOffset(index, buttonTextPosition[0] + (buttonOffset[0] * index))
+			posY = buttonTextPosition[1]
+			posX = PanelFillerCommon.CorrectPosX(posX)
+			posY = PanelFillerCommon.CorrectPosY(posY)
+			self.AddWidget(buttonWidget,posX,posY,relative,center,relativev,left)
+			index = index + 1
+
+	def RemovePanelWidgets(self):
+		for elem in self.PanelWidgetsName:
+			self.RemoveWidget(elem, 0)
+		self.PanelWidgets = []
+		self.PanelWidgetsName = []
+
+	def SetupPanelWidgets(self):
+		currImage = self.GetCurrentImage()
+		self.RemovePanelWidgets()
+		if currImage == 0:
+			SetSpecialsText(self)
+		elif currImage == 1:
+			SetCombosText(self)
+		elif currImage == 2:
+			SetAbilitiesText(self)
+		self.AddButtonTexts(PanelFillerCommon.GetLanguageFallback())
+
+	def GetCurrentImage(self):
 		import GotoMapVars
-		import Menu
+		currImage = self.image
 		char = Bladex.GetEntity("Player1")
-
-		x,y = Raster.GetSize()
-		# Raster.SetPosition((x - 640)/2, (y - 480)/2)
-
 		Map = string.lower(Bladex.GetCurrentMap())
 
 		Specials = 1
@@ -1212,13 +1302,25 @@ class B_BackWeapon(BUIx.B_RectWidget):
 		else:
 			if (Map in GotoMapVars.LevelNames and GotoMapVars.LevelNames.index(Map) > 6) or ((char.Kind == "Dwarf_N") and HaveCrush):
 				Specials = 0
-
-		# Horizontal buttons range checking
 		if self.image < Specials:
-			self.image = (self.NumImages - (1 + self.addone))
+			currImage = (self.NumImages - (1 + self.addone))
 
 		if self.image > (self.NumImages - (1 + self.addone)):
-			self.image = Specials
+			currImage = Specials
+		return currImage
+
+	def Draw(self,x,y,time):
+
+		Raster.SetTextShadow(4, 4)
+		import string
+		import Menu
+
+		# x,y = Raster.GetSize()
+		# Raster.SetPosition((x - 640)/2, (y - 480)/2)
+
+
+		# Horizontal buttons range checking
+		self.image = self.GetCurrentImage()
 
 		# Vertical -Text- options range checking
 		if self.Text < 0:
@@ -1230,32 +1332,32 @@ class B_BackWeapon(BUIx.B_RectWidget):
 		# Set logic conditions
 		if self.image == 0:
 			w, h = self.Specials.GetDimension()
-			Raster.DrawImage(w,h,"RGB","ScaledCentered",self.Specials.GetData())
+			Raster.DrawImage(w,h,"RGB","ScaledCentered2",self.Specials.GetData())
 		if self.image == 1:
 			w, h = self.Habilities.GetDimension()
-			Raster.DrawImage(w,h,"RGB","ScaledCentered",self.Weapons.GetData())
+			Raster.DrawImage(w,h,"RGB","ScaledCentered2",self.Weapons.GetData())
 		if self.image == 2:
 			w, h = self.Weapons.GetDimension()
-			Raster.DrawImage(w,h,"RGB","ScaledCentered",self.Habilities.GetData())
+			Raster.DrawImage(w,h,"RGB","ScaledCentered2",self.Habilities.GetData())
 		if self.image == 3:
 			w, h = self.Items.GetDimension()
-			Raster.DrawImage(w,h,"RGB","ScaledCentered",self.Items.GetData())
+			Raster.DrawImage(w,h,"RGB","ScaledCentered2",self.Items.GetData())
 		if self.image == 4:
 			w, h = self.MapText.GetDimension()
-			Raster.DrawImage(w, h,"RGB","ScaledCentered",self.MapText.GetData())
+			Raster.DrawImage(w, h,"RGB","ScaledCentered2",self.MapText.GetData())
 		if self.image == 5:
 			if self.Text == 0:
 				w, h = self.Tablets.GetDimension()
-				Raster.DrawImage(w,h,"RGB","ScaledCentered",self.Tablets.GetData())
+				Raster.DrawImage(w,h,"RGB","ScaledCentered2",self.Tablets.GetData())
 			if self.Text == 1:
 				w, h = self.Text1.GetDimension()
-				Raster.DrawImage(w,h,"RGB","ScaledCentered",self.Text1.GetData())
+				Raster.DrawImage(w,h,"RGB","ScaledCentered2",self.Text1.GetData())
 			if self.Text == 2:
 				w, h = self.Text2.GetDimension()
-				Raster.DrawImage(w,h,"RGB","ScaledCentered",self.Text2.GetData())
+				Raster.DrawImage(w,h,"RGB","ScaledCentered2",self.Text2.GetData())
 			if self.Text == 3:
 				w, h = self.Text3.GetDimension()
-				Raster.DrawImage(w,h,"RGB","ScaledCentered",self.Text3.GetData())
+				Raster.DrawImage(w,h,"RGB","ScaledCentered2",self.Text3.GetData())
 
 		if  ((self.image == 5)):
 		# and
@@ -1267,10 +1369,12 @@ class B_BackWeapon(BUIx.B_RectWidget):
 			Menu.TBUDSoundAble = 1
 		else:
 			Menu.TBUDSoundAble = 0
-		self.DefDraw(x,y,time)
+
+		Raster.SetPosition(0,0)
+		self.DefDraw(0,0,time)
 
 	def FinalRelease(self):
-		BUIx.B_RectWidget.FinalRelease(self)
+		BUIx.B_FrameWidget.FinalRelease(self)
 
 	def AcceptsFocus(self):
 		return 1
@@ -1278,10 +1382,12 @@ class B_BackWeapon(BUIx.B_RectWidget):
 	def IncMenuItem(self):
 		self.SndCorreGema.PlayStereo()
 		self.image = self.image + 1
+		self.SetupPanelWidgets()
 
 	def DecMenuItem(self):
 		self.SndCorreGema.PlayStereo()
 		self.image = self.image - 1
+		self.SetupPanelWidgets()
 
 	def GetFocus(self):
 	    return self
@@ -1294,18 +1400,26 @@ class B_BackWeapon(BUIx.B_RectWidget):
 	def NextFocus(self):
 		if self.image == 5:
 			self.Text = self.Text + 1
+			count = 0
 			while not self.TextsAvail[self.Text]:
+				if count == len(self.TextsAvail):
+					break
 				self.Text = self.Text + 1
 				if self.Text > self.NumTexts - 1:
 					self.Text = 0
+				count = count + 1
 
 	def PrevFocus(self):
 		if self.image == 5:
 			self.Text = self.Text - 1
+			count = 0
 			while not self.TextsAvail[self.Text]:
+				if count == len(self.TextsAvail):
+					break
 				self.Text = self.Text - 1
 				if self.Text < 0:
 					self.Text = self.NumTexts - 1
+				count = count + 1
 
 	def __del__(self):
 		import Menu

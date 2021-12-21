@@ -524,9 +524,9 @@ def CreateWidgetInfoChar():
     # InfoCharWidget4.SetAutoScale(1)
     Scorer.wFrame.AddWidget(InfoCharWidget4,0.5,base + 490 * BannerScale,BUIx.B_FrameWidget.B_FR_HRelative,BUIx.B_FrameWidget.B_FR_HCenter,BUIx.B_FrameWidget.B_FR_AbsoluteTop,BUIx.B_FrameWidget.B_FR_Top)
 
-
+    MenuGrasHi="../../Data/letras_menu_gras_hi.bmp"
     if FlechaIzqWidget == 0:
-        FlechaIzqWidget=BUIx.B_TextWidget(Scorer.wFrame,"FlechaIzqWidget","<",ScorerWidgets.font_server,Language.MenuGrasHi)
+        FlechaIzqWidget=BUIx.B_TextWidget(Scorer.wFrame,"FlechaIzqWidget","<",ScorerWidgets.font_server,MenuGrasHi)
     else:
         Scorer.wFrame.RemoveWidget("FlechaIzqWidget", 0)
 
@@ -539,7 +539,7 @@ def CreateWidgetInfoChar():
     Scorer.wFrame.AddWidget(FlechaIzqWidget,0.03,15,BUIx.B_FrameWidget.B_FR_HRelative,BUIx.B_FrameWidget.B_FR_HCenter,BUIx.B_FrameWidget.B_FR_AbsoluteBottom,BUIx.B_FrameWidget.B_FR_Bottom)
 
     if FlechaDerWidget == 0:
-        FlechaDerWidget=BUIx.B_TextWidget(Scorer.wFrame,"FlechaDerWidget",">",ScorerWidgets.font_server,Language.MenuGrasHi)
+        FlechaDerWidget=BUIx.B_TextWidget(Scorer.wFrame,"FlechaDerWidget",">",ScorerWidgets.font_server,MenuGrasHi)
     else:
         Scorer.wFrame.RemoveWidget("FlechaDerWidget", 0)
 
@@ -968,7 +968,7 @@ import BInput
 
 InputManager=BInput.GetInputManager()
 LastOne = InputManager.GetInputActionsSet()
-InputManager.SetInputActionsSet("Default")
+InputManager.SetInputActionsSet("CharacterSelection")
 
 Bladex.AddInputAction("Retrocede",0)
 Bladex.AddInputAction("Avanza",0)
@@ -980,12 +980,22 @@ def RedefineKeys():
 
 	InputManager=BInput.GetInputManager()
 	LastOne = InputManager.GetInputActionsSet()
-	InputManager.SetInputActionsSet("Default")
+	InputManager.SetInputActionsSet("CharacterSelection")
 
 	Bladex.AssocKey("Retrocede","Keyboard","Right")
 	Bladex.AssocKey("Avanza","Keyboard","Left")
 	Bladex.AssocKey("Selecciona","Keyboard","Enter")
 	Bladex.AssocKey("Cancelar","Keyboard","Esc")
+	Bladex.AssocKey("Retrocede","Gamepad","JoyRight")
+	Bladex.AssocKey("Avanza","Gamepad","JoyLeft")
+	Bladex.AssocKey("Retrocede","Gamepad","ButtonRight")
+	Bladex.AssocKey("Avanza","Gamepad","ButtonLeft")
+	Bladex.AssocKey("Selecciona","Gamepad","ButtonSouth")
+	Bladex.AssocKey("Cancelar","Gamepad","ButtonEast")
+	Bladex.AddBoundFunc("Retrocede",PressKeyX)
+	Bladex.AddBoundFunc("Avanza",PressKeyZ)
+	Bladex.AddBoundFunc("Selecciona",PressKeyEnter)
+	Bladex.AddBoundFunc("Cancelar",PressKeyEsc)
 
 	InputManager.SetInputActionsSet(LastOne)
 
@@ -993,18 +1003,14 @@ KeybWidget.AdditionalKeysCallBack = RedefineKeys
 
 RedefineKeys()
 
-Bladex.AddBoundFunc("Retrocede",PressKeyX)
-Bladex.AddBoundFunc("Avanza",PressKeyZ)
-Bladex.AddBoundFunc("Selecciona",PressKeyEnter)
-Bladex.AddBoundFunc("Cancelar",PressKeyEsc)
 InputManager.SetInputActionsSet(LastOne)
-
 
 HouseActive = 0
 
 # funcion callback indica que El Usuario Presiona La Tecla Escape
 def ElUsuarioPresionaLaTeclaEscape(Salio):
     print "Recompute layout"
+    InputManager.SetInputActionsSet("CharacterSelection")
 
     Size_X, Size_Y = Raster.GetUnscaledSize()
     BannerScale = Size_Y / 1080.0

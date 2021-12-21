@@ -18,7 +18,7 @@ import Language
 
 AdditionalKeysCallBack = None
 
-DefInfoText = "Press ENTER to define key, BACKSPACE to delete bindings, ESC to exit"
+DefInfoText = "Press ${\"ENTER\":Accept} to define key, ${\"BACKSPACE\":RebindDelete} to delete bindings, ${\"ESC\":RebindCancel} to exit"
 
 ActionDescriptor= {
                    "Attack"        : "Used to kill, mutilate and destroy",
@@ -29,6 +29,9 @@ ActionDescriptor= {
                    "Jump"          : "Press JUMP while running to perform a long jump.",
                    "Throw"         : "While holding down THROW, press ATTACK.",
                   }
+
+IgnoreGamepadButton = [ "X_Axis", "Y_Axis", "X_LAxis", "Y_LAxis", "ButtonStart", "ButtonGuide" ]
+GamepadFixedActions = ["Forwards", "Backwards", "Turn Left", "Turn Right"]
 
 class B_ControlItemText(MenuWidget.B_MenuItemText):
   def __init__(self,Parent,MenuDescr,StackMenu,font_server=ScorerWidgets.font_server):
@@ -54,6 +57,9 @@ class B_ControlItemText(MenuWidget.B_MenuItemText):
   def Draw(self,x,y,time):
     if self.GetVisible()==0:
       return
+
+    x=x+30
+    y=y+20
 
     #self.SetAlpha(0.5)
 
@@ -120,15 +126,24 @@ class B_ControlItemText(MenuWidget.B_MenuItemText):
 
 class B_ControlItemTexts(BUIx.B_FrameWidget,MenuWidget.B_MenuTreeItem):
   def __init__(self,Parent,MenuDescr,StackMenu):
-    BUIx.B_FrameWidget.__init__(self,Parent,MenuDescr["Name"],400,15)
+    BUIx.B_FrameWidget.__init__(self,Parent,MenuDescr["Name"],400,32)
     MenuWidget.B_MenuTreeItem.__init__(self,MenuDescr,StackMenu)
     self.wActionName=B_ControlItemText(self,MenuDescr,StackMenu)
     self.wActionKeys=B_ControlItemText(self,MenuDescr,StackMenu)
+    self.wActionGamepad=B_ControlItemText(self,MenuDescr,StackMenu)
+    if Language.Current == "Chinese":
+      GET_SCALE = 0.7
+    else:
+      GET_SCALE = 1.5
+    self.wActionGamepad.SetScale(GET_SCALE)
     self.AddWidget(self.wActionName,0,0,
                    BUIx.B_FrameWidget.B_FR_AbsoluteLeft,BUIx.B_FrameWidget.B_FR_Left,
                    BUIx.B_FrameWidget.B_FR_AbsoluteTop,BUIx.B_FrameWidget.B_FR_Top)
     self.AddWidget(self.wActionKeys,0,0,
                    BUIx.B_FrameWidget.B_FR_AbsoluteRight,BUIx.B_FrameWidget.B_FR_Right,
+                   BUIx.B_FrameWidget.B_FR_AbsoluteTop,BUIx.B_FrameWidget.B_FR_Top)
+    self.AddWidget(self.wActionGamepad,150,-6,
+                   BUIx.B_FrameWidget.B_FR_AbsoluteRight,BUIx.B_FrameWidget.B_FR_HCenter,
                    BUIx.B_FrameWidget.B_FR_AbsoluteTop,BUIx.B_FrameWidget.B_FR_Top)
     self.HasFocus=0
     self.SetClipDraw(0)
@@ -142,6 +157,7 @@ class B_ControlItemTexts(BUIx.B_FrameWidget,MenuWidget.B_MenuTreeItem):
     self.HasFocus=foc
     self.wActionName.SetHasFocus(foc)
     self.wActionKeys.SetHasFocus(foc)
+    self.wActionGamepad.SetHasFocus(foc)
 
   def GetHasFocus(self,foc):
     return self.HasFocus
@@ -165,22 +181,22 @@ class ControlMenuItem(B_ControlItemTexts):
 
     if self.IAction.Name()!="NULL":
       for i in range(self.IAction.nInputEvents()):
-      	IEvent=self.IAction.GetnInputEvent(i)
-      	if(IEvent.GetDevice()=="Keyboard" or IEvent.GetDevice()=="Mouse" or IEvent.GetDevice()=="Pad"):
-      	  self.KeyBounded.append(IEvent.GetKey())
+        IEvent=self.IAction.GetnInputEvent(i)
+        if IEvent.GetDevice()=="Keyboard" or IEvent.GetDevice()=="Mouse":
+          self.KeyBounded.append(IEvent.GetKey())
     else:
-      print "Can�t find",self.ActionName
+      print "Cannot find",self.ActionName
 
     self.BaseText=MenuDescr["Name"]
     self.wActionName.SetText(self.BaseText,self.ActionName)
     self.wActionKeys.SetText(str(self.KeyBounded))
+    self.wActionGamepad.SetText("${*" + self.ActionName + "}")
     self.RecalcLayout()
     self.IManager.SetInputActionsSet(oldInputActionsSet)
 
     self.ListenerName=MenuDescr["Name"]+" Listener"
     self.Listener=BInput.B_InputListener(self.ListenerName) #No se puede heredar m�ltiple de una clase generada por SWIG
     self.Listener.SetPythonFunc(self.ListenDevice)
-
 
     self.MouseListenerName=MenuDescr["Name"]+" MouseListener"
     self.MouseListener=BInput.B_InputListener(self.MouseListenerName) #No se puede heredar m�ltiple de una clase generada por SWIG
@@ -189,10 +205,14 @@ class ControlMenuItem(B_ControlItemTexts):
     self.PadListenerName=MenuDescr["Name"]+" PadListener"
     self.PadListener=BInput.B_InputListener(self.PadListenerName) #No se puede heredar m�ltiple de una clase generada por SWIG
     self.PadListener.SetPythonFunc(self.ListenPadDevice)
+
     self.ReadyToEscape = 1
+    self.CanActivate = 1
 
 
   def ActivateItem(self,act):
+    if not self.CanActivate:
+      return
     if not act:
         if self.ReadyToEscape:
             B_ControlItemTexts.ActivateItem(self,act)
@@ -202,28 +222,28 @@ class ControlMenuItem(B_ControlItemTexts):
     if len(self.KeyBounded)>=3:
       self.SetStatusText(MenuText.GetMenuText("Maximun number of key bindings reached."))
       return
-    self.SetStatusText(MenuText.GetMenuText("Press desired key, ESC to end"))
+    self.SetStatusText(MenuText.GetMenuText("Press desired key, ${\"ESC\":RebindCancel} to end"))
     keyb=self.IManager.GetAttachedDevice("Keyboard")
     if keyb.this!="NULL":
-    	keyb.AddListener(self.Listener)
+      keyb.AddListener(self.Listener)
     keyb=self.IManager.GetAttachedDevice("Mouse")
     if keyb.this!="NULL":
-    	keyb.AddListener(self.MouseListener)
-    keyb=self.IManager.GetAttachedDevice("Pad")
+      keyb.AddListener(self.MouseListener)
+    keyb=self.IManager.GetAttachedDevice("Gamepad")
     if keyb.this!="NULL":
-    	keyb.AddListener(self.PadListener)
+      keyb.AddListener(self.PadListener)
     self.oldInputActionsSet=self.IManager.GetInputActionsSet()
 
-    self.IManager.SetInputActionsSet("Default")
-    self.IManager.GetInputActions().Find("Avanza").RemoveAllEvents()
-    self.IManager.GetInputActions().Find("Retrocede").RemoveAllEvents()
-    self.IManager.GetInputActions().Find("Selecciona").RemoveAllEvents()
-    self.IManager.GetInputActions().Find("Cancelar").RemoveAllEvents()
+    # self.IManager.SetInputActionsSet("Default")
+    # self.IManager.GetInputActions().Find("Avanza").RemoveAllEvents()
+    # self.IManager.GetInputActions().Find("Retrocede").RemoveAllEvents()
+    # self.IManager.GetInputActions().Find("Selecciona").RemoveAllEvents()
+    # self.IManager.GetInputActions().Find("Cancelar").RemoveAllEvents()
 
     self.IManager.SetInputActionsSet("MenuRedefine")
     self.wActionName.ChangingKey=1
     self.wActionKeys.ChangingKey=1
-
+    self.CanActivate = 0
 
 
   def EndDefineKey(self):
@@ -231,13 +251,13 @@ class ControlMenuItem(B_ControlItemTexts):
     self.IManager.SetInputActionsSet(self.oldInputActionsSet)
     keyb=self.IManager.GetAttachedDevice("Keyboard")
     if keyb.this!="NULL":
-    	keyb.RemoveListener(self.ListenerName)
+      keyb.RemoveListener(self.ListenerName)
     keyb=self.IManager.GetAttachedDevice("Mouse")
     if keyb.this!="NULL":
-    	keyb.RemoveListener(self.MouseListenerName)
-    keyb=self.IManager.GetAttachedDevice("Pad")
+      keyb.RemoveListener(self.MouseListenerName)
+    keyb=self.IManager.GetAttachedDevice("Gamepad")
     if keyb.this!="NULL":
-    	keyb.RemoveListener(self.PadListenerName)
+      keyb.RemoveListener(self.PadListenerName)
 
     self.wActionName.ChangingKey=0
     self.wActionName.SelectionFilterUpdated=0
@@ -247,6 +267,12 @@ class ControlMenuItem(B_ControlItemTexts):
     self.wActionKeys.SelectionFilterUpdated=0
     self.wActionKeys.FilterUpdated=0
 
+    Bladex.SetAfterFrameFunc("Reactivate",self.Reactivate)
+
+
+  def Reactivate(self, time):
+    self.CanActivate = 1
+    Bladex.RemoveAfterFrameFunc("Reactivate")
 
 
   def ListenDevice(self,x,y,z):
@@ -256,7 +282,7 @@ class ControlMenuItem(B_ControlItemTexts):
         self.ReadyToEscape = 0
       elif x not in self.KeyBounded:
         if x=="Backspace":
-        	self.ReadyToEscape = 0
+          self.ReadyToEscape = 0
         keyb=self.IManager.GetAttachedDevice("Keyboard")
         self.IManager.SetInputActionsSet("Default")
         if keyb.IsBinded(x):
@@ -266,12 +292,12 @@ class ControlMenuItem(B_ControlItemTexts):
         else:
           self.IAction.AddEvent(keyb,x,1)
           for k in self.Extras:
-          	if   k[0] == "Press":
-          		self.IManager.GetInputActions().Find(k[1]).AddEvent(keyb,x,1)
-          	elif k[0] == "Release":
-          		self.IManager.GetInputActions().Find(k[1]).AddEvent(keyb,x,0)
-          	else:
-          		print "ERROR : '",k[0],"' is not defined yet!"
+            if   k[0] == "Press":
+              self.IManager.GetInputActions().Find(k[1]).AddEvent(keyb,x,1)
+            elif k[0] == "Release":
+              self.IManager.GetInputActions().Find(k[1]).AddEvent(keyb,x,0)
+            else:
+              print "ERROR : '",k[0],"' is not defined yet!"
           self.KeyBounded.append(x)
           self.IManager.SetInputActionsSet("MenuRedefine")
           self.wActionKeys.SetText(str(self.KeyBounded))
@@ -289,12 +315,12 @@ class ControlMenuItem(B_ControlItemTexts):
         else:
           self.IAction.AddEvent(keyb,x,1)
           for k in self.Extras:
-          	if   k[0] == "Press":
-          		self.IManager.GetInputActions().Find(k[1]).AddEvent(keyb,x,1)
-          	elif k[0] == "Release":
-          		self.IManager.GetInputActions().Find(k[1]).AddEvent(keyb,x,0)
-          	else:
-          		print "ERROR : '",k[0],"' is not defined yet!"
+            if   k[0] == "Press":
+              self.IManager.GetInputActions().Find(k[1]).AddEvent(keyb,x,1)
+            elif k[0] == "Release":
+              self.IManager.GetInputActions().Find(k[1]).AddEvent(keyb,x,0)
+            else:
+              print "ERROR : '",k[0],"' is not defined yet!"
           self.KeyBounded.append(x)
           self.IManager.SetInputActionsSet("MenuRedefine")
           self.wActionKeys.SetText(str(self.KeyBounded))
@@ -302,38 +328,54 @@ class ControlMenuItem(B_ControlItemTexts):
           self.EndDefineKey()
 
   def ListenPadDevice(self,x,y,z):
-      if x not in self.KeyBounded:
-        keyb=self.IManager.GetAttachedDevice("Pad")
-        self.IManager.SetInputActionsSet("Default")
-        if keyb.IsBinded(x) or len(self.KeyBounded)>=3:
-          self.SetStatusText(MenuText.GetMenuText("The pad action <")+x+MenuText.GetMenuText("> is already used!"))
-          pass
-        else:
-          self.IAction.AddEvent(keyb,x,1)
-          for k in self.Extras:
-          	if   k[0] == "Press":
-          		self.IManager.GetInputActions().Find(k[1]).AddEvent(keyb,x,1)
-          	elif k[0] == "Release":
-          		self.IManager.GetInputActions().Find(k[1]).AddEvent(keyb,x,0)
-          	else:
-          		print "ERROR : '",k[0],"' is not defined yet!"
-          self.KeyBounded.append(x)
-          self.IManager.SetInputActionsSet("MenuRedefine")
-          self.wActionKeys.SetText(str(self.KeyBounded))
-          self.RecalcLayout()
+    if z==1.0:
+
+      if x=="ButtonStart":
+        self.EndDefineKey()
+        self.ReadyToEscape = 0
+      else:
+        if self.IAction.Name() in GamepadFixedActions:
+          self.SetStatusText(MenuText.GetMenuText("This action cannot be remapped on the gamepad."))
           self.EndDefineKey()
+          self.ReadyToEscape = 0
+          return
+        if x in IgnoreGamepadButton:
+          return
+        gamepad=self.IManager.GetAttachedDevice("Gamepad")
+        self.IManager.SetInputActionsSet("Default")
+        if gamepad.IsBinded(x):
+          self.IManager.DisassocKey("Gamepad", x)
+
+        self.IAction.AddEvent(gamepad,x,1)
+        for k in self.Extras:
+          if   k[0] == "Press":
+            self.IManager.GetInputActions().Find(k[1]).AddEvent(gamepad,x,1)
+          elif k[0] == "Release":
+            self.IManager.GetInputActions().Find(k[1]).AddEvent(gamepad,x,0)
+          else:
+            print "ERROR : '",k[0],"' is not defined yet!"
+        self.IManager.SetInputActionsSet("MenuRedefine")
+        self.RecalcLayout()
+        self.EndDefineKey()
 
   def SuprMenuItem(self):
     if self.ReadyToEscape:
       self.IManager.SetInputActionsSet("Default")
-      self.IAction.RemoveAllEvents()
-      for k in self.Extras:
-        if   k[0] == "Press":
-          self.IManager.GetInputActions().Find(k[1]).RemoveAllEvents()
-        elif k[0] == "Release":
-          self.IManager.GetInputActions().Find(k[1]).RemoveAllEvents()
-        else:
-          print "ERROR : '",k[0],"' is not defined yet!"
+
+      devices = ["Keyboard", "Mouse", "Gamepad"]
+
+      if self.IAction.Name() in GamepadFixedActions:
+        devices.remove("Gamepad")
+
+      for device in devices:
+        self.IAction.RemoveAllDeviceEvents(device)
+        for k in self.Extras:
+          if k[0] == "Press":
+            self.IManager.GetInputActions().Find(k[1]).RemoveAllDeviceEvents(device)
+          elif k[0] == "Release":
+            self.IManager.GetInputActions().Find(k[1]).RemoveAllDeviceEvents(device)
+          else:
+            print "ERROR : '",k[0],"' is not defined yet!"
 
       self.KeyBounded=[]
       self.wActionKeys.SetText("")
@@ -358,7 +400,7 @@ MOUSE_CONTROLS = ["RightButton","LeftButton","MiddleButton","OtherButton"]
 class B_KeybListWidget(ListWidget.B_ListWidget):
   def __init__(self,Parent,Menudesc,StackMenu,VertPos=0):
     ListWidget.B_ListWidget.__init__(self,Parent,Menudesc,StackMenu,VertPos)
-    self.StatusText=BUIx.B_TextWidget(self,"Status",MenuText.GetMenuText(DefInfoText),ScorerWidgets.font_server,Language.LetrasMenuSmall)
+    self.StatusText=BUIx.B_TextWidget(self,"Status",MenuText.GetMenuText(DefInfoText),ScorerWidgets.font_server,Language.LetrasMenu)
     self.StatusText.SetColor(252,247,167)
     self.StatusText.SetAlpha(1)
     self.AddLabel(self.StatusText,0.5,25,BUIx.B_Widget.B_LAB_HCenter,BUIx.B_Widget.B_LAB_Bottom,
@@ -406,7 +448,9 @@ def SaveListConfig():
     cfgfile.write('# DO NOT EDIT: Changes will be lost\n\n\n')
 
     cfgfile.write('ON_RELEASE=0\n')
-    cfgfile.write('ON_PRESS=1	# default\n\n\n\n')
+    cfgfile.write('ON_PRESS=1  # default\n\n\n\n')
+    cfgfile.write('import acts\n')
+    cfgfile.write('acts.ClearConfigurableActions()\n')
 
     cfgfile.write('import BInput\n')
     cfgfile.write('InputManager=BInput.GetInputManager()\n')
@@ -425,24 +469,24 @@ def SaveListConfig():
         continue
 
       for j in range(IAction.nInputEvents()):
-      	IEvent=IAction.GetnInputEvent(j)
-      	IDevice=IEvent.GetDevice()
-      	if(IDevice=="Keyboard" or IDevice=="Mouse" or IDevice=="Pad"):
-      	  text='Bladex.AssocKey("%s","%s","%s")\n'%(IAction.Name(),IDevice,IEvent.GetKey())
-      	  cfgfile.write(text)
-      	  for k in i[2]:
-      	    if   k[0]=="Release":
-      	      SaveReleaseKey(cfgfile,IAction.Name(),IEvent.GetKey(),k[1],IDevice)
-      	    elif k[0]=="Press":
-      	      NewAction(cfgfile,IAction.Name(),IEvent.GetKey(),k[1],IDevice)
-      	    else:
-      	      print "ERROR: '"+k[0]+" is not defined!"
+        IEvent=IAction.GetnInputEvent(j)
+        IDevice=IEvent.GetDevice()
+        if(IDevice=="Keyboard" or IDevice=="Mouse" or IDevice=="Gamepad"):
+          text='Bladex.AssocKey("%s","%s","%s")\n'%(IAction.Name(),IDevice,IEvent.GetKey())
+          cfgfile.write(text)
+          for k in i[2]:
+            if   k[0]=="Release":
+              SaveReleaseKey(cfgfile,IAction.Name(),IEvent.GetKey(),k[1],IDevice)
+            elif k[0]=="Press":
+              NewAction(cfgfile,IAction.Name(),IEvent.GetKey(),k[1],IDevice)
+            else:
+              print "ERROR: '"+k[0]+" is not defined!"
 
     IManager.SetInputActionsSet(oldInputActionsSet)
 
     cfgfile.write('\n# Mouse stuff\nBladex.AssocKey("RotateX","Mouse","X_Axis")\nBladex.AssocKey("RotateY","Mouse","Y_Axis")\n')
     MouseData = Bladex.GetMouseState()
-    text = 'Bladex.SetMouseState(%i,%f,%f)\n'%(MouseData[0],MouseData[1],MouseData[2])
+    text = 'Bladex.SetMouseState(%i,%i,%f,%f)\n'%(MouseData[0],MouseData[1],MouseData[2],MouseData[3])
     cfgfile.write(text)
 
 

@@ -213,6 +213,8 @@ wants_auto_scale=0
 
 # Frames ---------------------------------------------------------------------------------------------------
 wFrame=BUIx.B_FrameWidget(__wNULL,"MainFrame",640,480)
+wMessageFrame=BUIx.B_FrameWidget(__wNULL,"MessageFrame",640,480)
+Bladex.SetMessageWidget( wMessageFrame.GetPointer() )
 wLeftFrame=BUIx.B_FrameWidget(wFrame,"BarsFrame",195,65)
 wEnemiesFrame=BUIx.B_FrameWidget(wFrame,"EnemiesFrame",E_ICON_DISTANCE*5+E_CENTRAL_DISTANCE*2+E_ARROW_DISTANCE*2,65)
 wObjectsFrame=ScorerWidgets.B_ObjectsFrame(wFrame,"ObjectsFrame",125,65,char)
@@ -233,11 +235,18 @@ wGameText.SetColor(255,255,255)
 
 
 # Travel Book Warning--------------------------------------------------------------------------------------------
-TBookSword=BUIx.B_BitmapWidget(wFrame,"TBookSword",126,22,"PRESSF1","../../Data/pressf1.mmp")
+Widget = BUIx.B_TextWidget(wFrame, "pressF1","",ScorerWidgets.font_server,Language.MapaDeLetrasHi)
+Widget.SetText(MenuText.GetMenuText("PRESS") + "${\" F1\":LaunchTravel}")
+Widget.SetScale(0.28)
+Widget.SetAlpha(1)
+Widget.SetColor(240,51,2)
+Widget.SetVisible(0)
+wFrame.AddWidget(Widget,0.855,0.989,BUIx.B_FrameWidget.B_FR_HRelative,BUIx.B_FrameWidget.B_FR_Left,BUIx.B_FrameWidget.B_FR_VRelative,BUIx.B_FrameWidget.B_FR_Bottom)
+TBookSword=BUIx.B_BitmapWidget(wFrame,"TBookSword",126,22,"PRESSF1","../../Data/mmps/PRESSF1_hi_empty.png")
 TBookSword.SetColor(255,255,255)
-wFrame.AddWidget(TBookSword,0,0,BUIx.B_FrameWidget.B_FR_AbsoluteRight,BUIx.B_FrameWidget.B_FR_Right,BUIx.B_FrameWidget.B_FR_AbsoluteBottom,BUIx.B_FrameWidget.B_FR_Bottom)
 TBookSword.SetAlpha(1.0)
 TBookSword.SetVisible(0)
+wFrame.AddWidget(TBookSword,0,0,BUIx.B_FrameWidget.B_FR_AbsoluteRight,BUIx.B_FrameWidget.B_FR_Right,BUIx.B_FrameWidget.B_FR_AbsoluteBottom,BUIx.B_FrameWidget.B_FR_Bottom)
 
 TBS=Bladex.CreateSound("../../Sounds/M-DESENFUNDA-PIEDRA.wav","TBWarning")
 TBS.Volume=1.0
@@ -261,15 +270,18 @@ def SlideTBS2(dir,time = 0):
 		XPos = -MarcoAnchoTex * time * 4
 	else:
 		TBookSword.SetVisible(1)
+		Widget.SetVisible(1)
 		XPos = -MarcoAnchoTex + (MarcoAnchoTex * time * 4)
 
 		wFrame.MoveWidgetTo("TBookSword",XPos,0)
+		wFrame.MoveWidgetTo("Widget",XPos,0)
 
 	Bladex.AddScheduledFunc(Bladex.GetTime() + 10,HideTBS,())
 
 def HideTBS():
 	global TBookSword
 	TBookSword.SetVisible(0)
+	Widget.SetVisible(0)
 
 
 
@@ -480,7 +492,7 @@ wSpecialKey4=ScorerWidgets.B_InvSpecialKeyWidget(wSpecialsFrame,"STAR",22,22,cha
 wTablet1=ScorerWidgets.B_InvTabletWidget(wSpecialsFrame,"Tablilla1","!", char,0)
 wTablet2=ScorerWidgets.B_InvTabletWidget(wSpecialsFrame,"Tablilla2","\"",char,1)
 wTablet3=ScorerWidgets.B_InvTabletWidget(wSpecialsFrame,"Tablilla3","#", char,2)
-wTablet4=ScorerWidgets.B_InvTabletWidget(wSpecialsFrame,"Tablilla4","$", char,3)
+wTablet4=ScorerWidgets.B_InvTabletWidget(wSpecialsFrame,"Tablilla4","$$", char,3)
 wTablet5=ScorerWidgets.B_InvTabletWidget(wSpecialsFrame,"Tablilla5","%", char,4)
 wTablet6=ScorerWidgets.B_InvTabletWidget(wSpecialsFrame,"Tablilla6","&", char,5)
 
@@ -693,6 +705,7 @@ PowDefWidgets.Activate()
 
 
 wFrame.SetAutoScale(1)
+wMessageFrame.SetAutoScale(1)
 
 if wants_auto_scale:
   wLeftFrame.SetAutoScale(1)
@@ -718,6 +731,7 @@ if wants_auto_scale:
   wDangerLabel.SetAutoScale(1)
   wEnergyMaxLabel.SetAutoScale(1)
   TBookSword.SetAutoScale(1)
+  Widget.SetAutoScale(1)
   wLifeMarker.SetAutoScale(1)
   wEnergyBmp.SetAutoScale(1)
 

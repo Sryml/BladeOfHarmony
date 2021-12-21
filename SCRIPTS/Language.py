@@ -17,7 +17,7 @@ if Current == "Chinese":
     MenuGrasHi="../../Data/chineseHSMenuGrasHi.fnt"
     CtrlMenu="../../Data/ctrlMenu16.fnt"
 
-    MapaDeLetras = MapaDeLetrasHi = LetrasMenu = LetrasMenuSmall = LetrasMenuBig = MenuGrasHi = CtrlMenu="../../Data/CHS_COMMON.fnt"
+    MapaDeLetras = MapaDeLetrasHi = LetrasMenu = LetrasMenuSmall = LetrasMenuBig = MenuGrasHi = CtrlMenu = LetrasPanel = LetrasPanelButton = "../../Data/CHS_COMMON.fnt"
 elif Current == "Russian":
     MapaDeLetras = "../../Data/fontRu16.fnt"
     MapaDeLetrasHi = "../../Data/fontRu32.fnt"

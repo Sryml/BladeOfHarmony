@@ -817,7 +817,7 @@ if netgame.GetNetState() == 0:
       self.wPowText.SetVisible(0)
       self.wAltPowText.SetVisible(1)
       self.wResText.SetVisible(1)
-      
+
       power_text= `power`+ ' ' + MenuText.GetMenuText("POW")
       if power>=0:
         power_text= '+'+power_text
@@ -838,7 +838,7 @@ if netgame.GetNetState() == 0:
       self.wPowText.SetVisible(1)
       self.wAltPowText.SetVisible(0)
       self.wResText.SetVisible(1)
-      
+
       def_text= `defence`+ ' ' + MenuText.GetMenuText("DEF")
       if defence>=0:
         def_text= '+'+def_text
