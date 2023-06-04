@@ -19,7 +19,7 @@ import Language
 import MenuText
 
 if Language.Current == "Chinese":
-  GET_SCALE = 0.36
+  GET_SCALE = 0.23
 else:
   GET_SCALE = 0.25
 

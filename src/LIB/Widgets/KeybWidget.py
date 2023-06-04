@@ -47,7 +47,7 @@ class B_ControlItemText(MenuWidget.B_MenuItemText):
     self._foc=-1
     self.ActionName = None
     if Language.Current == "Chinese":
-      self.SetScale(0.6)
+      self.SetScale(0.384)
 
   def SetText(self,text,ActionName=None):
     MenuWidget.B_MenuItemText.SetText(self,text)
@@ -133,7 +133,7 @@ class B_ControlItemTexts(BUIx.B_FrameWidget,MenuWidget.B_MenuTreeItem):
     self.wActionKeys=B_ControlItemText(self,MenuDescr,StackMenu)
     self.wActionGamepad=B_ControlItemText(self,MenuDescr,StackMenu)
     if Language.Current == "Chinese":
-      GET_SCALE = 0.7
+      GET_SCALE = 0.447
     else:
       GET_SCALE = 1.5
     self.wActionGamepad.SetScale(GET_SCALE)

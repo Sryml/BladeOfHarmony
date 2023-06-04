@@ -33,6 +33,9 @@ BackButtonY = 100
 BackGamepadButtonY = 70
 AcceptBackY = 40
 
+#
+TEXT_SCALE = Language.TEXT_SCALE
+
 class Stack:
   def __init__(self):
     #print "Stack.__init__()"
@@ -295,9 +298,21 @@ class B_MenuTreeItem:
     self.StackMenu=StackMenu
     self.MenuDescr=MenuDescr
     try:
-    	self.FocusCallBack = MenuDescr["FocusCallBack"]
+      self.FocusCallBack = MenuDescr["FocusCallBack"]
     except:
-    	pass
+      pass
+
+    if Language.Current == "Chinese":
+      if hasattr(self,"SetText"):
+        if MenuDescr.has_key("Clave") and MenuDescr.has_key("FocusCallBack"):
+          self.SetScale(TEXT_SCALE['M'])
+        elif MenuText.GetInverseMenuText(MenuDescr["Name"]) in ("Yes","No"):
+          self.SetScale(MenuDescr.get("Scale",TEXT_SCALE['M']))
+        else:
+          self.SetScale(MenuDescr.get("Scale",TEXT_SCALE['L']))
+      elif MenuDescr.get("Kind") == B_MenuSpin:
+        for i in (self.Text,self.DefaultText,self.Spin.Text,self.Spin.LeftArrow,self.Spin.RightArrow):
+          i.SetScale(MenuDescr.get("Scale",TEXT_SCALE['L']))
 
   def __del__(self):
     #print "MenuTreeItem.__del__()"
@@ -534,10 +549,6 @@ class B_MenuItemTextNoFX(BUIx.B_TextWidget,B_MenuTreeItem):
     self.SetAlpha(1.0)
     self.thisown=1
 
-    if Language.Current == "Chinese":
-      if MenuDescr.has_key("Clave") and MenuDescr.has_key("FocusCallBack"):
-        self.SetScale(0.6)
-
 
   def __del__(self):
     #print "B_MenuItemText.__del__()",self.Name()
@@ -581,9 +592,6 @@ class B_MenuItemTextNoFXNoFocus(BUIx.B_TextWidget,B_MenuTreeItem):
     self.SetAlpha(1.0)
     self.thisown=1
 
-    if Language.Current == "Chinese":
-      if MenuDescr.has_key("Clave") and MenuDescr.has_key("FocusCallBack"):
-        self.SetScale(0.6)
 
   def __del__(self):
     #print "B_MenuItemText.__del__()",self.Name()

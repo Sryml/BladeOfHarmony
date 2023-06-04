@@ -82,8 +82,11 @@ def InitWidget(parent, name, text, font, elem):
 	Widget.SetAlpha(1)
 	Widget.SetColor(255,255,255)
 	Widget.SetText(MenuText.GetMenuText(text))
-	if Language.Current == "Chinese" and elem != "Combo" and elem != "Combo2":
-		y_scale = y_scale * 1.2
+	if Language.Current == "Chinese":
+		if elem in ("Combo","Combo2"):
+			y_scale = y_scale * 0.67
+		else:
+			y_scale = y_scale * 0.7
 	Widget.SetScale(0.55 * y_scale)
 	if elem == "Button":
 		Widget.SetScale(0.61 * y_scale)

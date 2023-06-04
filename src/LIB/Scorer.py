@@ -31,10 +31,9 @@ E_CENTRAL_DISTANCE = 20
 E_EDGAL_DISTANCE = 4
 E_ARROW_DISTANCE = 40
 
-if Language.Current == "Chinese":
-  GET_SCALE = 0.36
-else:
-  GET_SCALE = 0.25
+Current = Language.Current
+GET_SCALE = Current == "Chinese" and 0.23 or 0.25
+TEXT_SCALE = Language.TEXT_SCALE
 
 
 def ReorderEnemies(me,enemies,FacedName):
@@ -228,7 +227,7 @@ wSpecialsFrame=BUIx.B_FrameWidget(wFrame,"SpecialsFrame",180,32)
 # Texto  ----------------------------------------------------------------------------------------------------
 wGameText=BUIx.B_TextWidget(wFrame,"GameTextWidget","\n\n\n\n\n",ScorerWidgets.font_server,Language.LetrasMenuBig)
 #wGameText=ScorerWidgets.B_GameTextWidget(wFrame,"GameTextWidget")
-wGameText.SetScale(0.5)
+wGameText.SetScale(Current == "Chinese" and 0.32 or 0.5)
 wGameText.SetAlpha(1)
 wGameText.SetColor(255,255,255)
 
@@ -237,7 +236,7 @@ wGameText.SetColor(255,255,255)
 # Travel Book Warning--------------------------------------------------------------------------------------------
 Widget = BUIx.B_TextWidget(wFrame, "pressF1","",ScorerWidgets.font_server,Language.MapaDeLetrasHi)
 Widget.SetText(MenuText.GetMenuText("PRESS") + "${\" F1\":LaunchTravel}")
-Widget.SetScale(0.28)
+Widget.SetScale(Current == "Chinese" and 0.22 or 0.28)
 Widget.SetAlpha(1)
 Widget.SetColor(240,51,2)
 Widget.SetVisible(1)
