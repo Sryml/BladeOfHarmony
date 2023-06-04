@@ -240,8 +240,11 @@ Widget.SetText(MenuText.GetMenuText("PRESS") + "${\" F1\":LaunchTravel}")
 Widget.SetScale(0.28)
 Widget.SetAlpha(1)
 Widget.SetColor(240,51,2)
-Widget.SetVisible(0)
-wFrame.AddWidget(Widget,0.855,0.989,BUIx.B_FrameWidget.B_FR_HRelative,BUIx.B_FrameWidget.B_FR_Left,BUIx.B_FrameWidget.B_FR_VRelative,BUIx.B_FrameWidget.B_FR_Bottom)
+Widget.SetVisible(1)
+wFramePress=BUIx.B_FrameWidget(wFrame,"PressFrame",80,18)
+wFramePress.SetVisible(0)
+wFramePress.AddWidget(Widget,0,0,BUIx.B_FrameWidget.B_FR_AbsoluteLeft,BUIx.B_FrameWidget.B_FR_Left,BUIx.B_FrameWidget.B_FR_AbsoluteTop,BUIx.B_FrameWidget.B_FR_Top)
+wFrame.AddWidget(wFramePress,0,0,BUIx.B_FrameWidget.B_FR_AbsoluteRight,BUIx.B_FrameWidget.B_FR_Right,BUIx.B_FrameWidget.B_FR_AbsoluteBottom,BUIx.B_FrameWidget.B_FR_Bottom)
 TBookSword=BUIx.B_BitmapWidget(wFrame,"TBookSword",126,22,"PRESSF1","../../Data/mmps/PRESSF1_hi_empty.png")
 TBookSword.SetColor(255,255,255)
 TBookSword.SetAlpha(1.0)
@@ -270,7 +273,7 @@ def SlideTBS2(dir,time = 0):
 		XPos = -MarcoAnchoTex * time * 4
 	else:
 		TBookSword.SetVisible(1)
-		Widget.SetVisible(1)
+		wFramePress.SetVisible(1)
 		XPos = -MarcoAnchoTex + (MarcoAnchoTex * time * 4)
 
 		wFrame.MoveWidgetTo("TBookSword",XPos,0)
@@ -281,7 +284,7 @@ def SlideTBS2(dir,time = 0):
 def HideTBS():
 	global TBookSword
 	TBookSword.SetVisible(0)
-	Widget.SetVisible(0)
+	wFramePress.SetVisible(0)
 
 
 
@@ -401,7 +404,7 @@ wMaxPowerLabel.SetColor(255,255,255)
 wMaxPowerLabel.SetAlpha(1.0)
 wMaxPowerLabel.SetVisible(0)
 wMaxPowerLabel.SetScale(GET_SCALE)
-wStrengthBar.AddLabel(wMaxPowerLabel,0.4,0.5,
+wStrengthBar.AddLabel(wMaxPowerLabel,0.4,0.32,
                   BUIx.B_Widget.B_LAB_HCenter,BUIx.B_Widget.B_LAB_VCenter,
                   BUIx.B_Widget.B_FR_HRelative, BUIx.B_Widget.B_FR_HCenter,
                   BUIx.B_Widget.B_FR_VRelative, BUIx.B_Widget.B_FR_VCenter
@@ -412,7 +415,7 @@ wStrengthLabel.SetColor(251,210,99)
 wStrengthLabel.SetAlpha(1.0)
 wStrengthLabel.SetFlash(0.0)
 wStrengthLabel.SetScale(GET_SCALE)
-wStrengthBar.AddLabel(wStrengthLabel,9,0.5,
+wStrengthBar.AddLabel(wStrengthLabel,9,0.32,
                   BUIx.B_Widget.B_LAB_Left,BUIx.B_Widget.B_LAB_VCenter,
                   BUIx.B_Widget.B_FR_AbsoluteRight,BUIx.B_Widget.B_FR_Right,
                   BUIx.B_Widget.B_FR_VRelative, BUIx.B_Widget.B_FR_VCenter

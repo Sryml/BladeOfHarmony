@@ -9,16 +9,16 @@ import os
 Current = BBLib.GetCurrentLanguage()
 
 if Current == "Chinese":
-    MapaDeLetras = "../../Data/chineseHS.fnt"
-    MapaDeLetrasHi = "../../Data/chineseHSMapaDeLetrasHi.fnt"
-    LetrasMenu = "../../Data/chineseHSVerySmall.fnt"
-    LetrasMenuSmall="../../Data/chineseHSSmall.fnt"
-    LetrasMenuBig="../../Data/chineseHSSmall.fnt"
-    MenuGrasHi="../../Data/chineseHSMenuGrasHi.fnt"
-    CtrlMenu="../../Data/ctrlMenu16.fnt"
-    LetrasPanel="../../Data/chineseHSPanel.fnt"
-    LetrasPanelButton="../../Data/chineseHSPanelButton.fnt"
-    MapaDeLetras = MapaDeLetrasHi = LetrasMenu = LetrasMenuSmall = LetrasMenuBig = MenuGrasHi = CtrlMenu = LetrasPanel = LetrasPanelButton = "../../Data/CHS_COMMON.fnt"
+    MapaDeLetras = "../../Data/fontCN32.fnt"
+    MapaDeLetrasHi = "../../Data/fontCN42.fnt"
+    LetrasMenu = "../../Data/fontCN18.fnt"
+    LetrasMenuSmall="../../Data/fontCN32.fnt"
+    LetrasMenuBig="../../Data/fontCN32.fnt"
+    MenuGrasHi="../../Data/fontCN72.fnt"
+    CtrlMenu="../../Data/fontCN16.fnt"
+    #LetrasPanel="../../Data/chineseHSPanel.fnt"
+    #LetrasPanelButton="../../Data/chineseHSPanelButton.fnt"
+    MapaDeLetras = MapaDeLetrasHi = LetrasMenu = LetrasMenuSmall = LetrasMenuBig = MenuGrasHi = CtrlMenu = "../../Data/CHS_COMMON.fnt"
 elif Current == "Russian":
     MapaDeLetras = "../../Data/fontRu16.fnt"
     MapaDeLetrasHi = "../../Data/fontRu32.fnt"

@@ -83,7 +83,7 @@ def InitWidget(parent, name, text, font, elem):
 	Widget.SetColor(255,255,255)
 	Widget.SetText(MenuText.GetMenuText(text))
 	if Language.Current == "Chinese" and elem != "Combo" and elem != "Combo2":
-		y_scale = y_scale * 1.25
+		y_scale = y_scale * 1.2
 	Widget.SetScale(0.55 * y_scale)
 	if elem == "Button":
 		Widget.SetScale(0.61 * y_scale)
@@ -107,23 +107,23 @@ def UpperCase( String ):
 
 		if Char >= 'A' and Char <= 'Z':
 			Result = Result + Char
-		elif Char in '������������':
+		elif Char in 'àáâãäåÀÁÂÃÄÅ':
 			Result = Result + 'A'
-		elif Char in '��':
+		elif Char in 'ç¢Ç':
 			Result = Result + 'C'
-		elif Char in '��������':
+		elif Char in 'èéêëÈÉÊË':
 			Result = Result + 'E'
-		elif Char in '��������':
+		elif Char in 'ìíîïÌÍÎÏ':
 			Result = Result + 'I'
-		elif Char in '�':
+		elif Char in 'ñ':
 			Result = Result + 'N'
-		elif Char in '��������':
+		elif Char in 'ùúûüÙÚÛÜ':
 			Result = Result + 'U'
-		elif Char in '���':
+		elif Char in 'ýÿÝ':
 			Result = Result + 'Y'
-		elif Char in '�':
+		elif Char in 'Ð':
 			Result = Result + 'D'
-		elif Char in '����������':
+		elif Char in 'òóôõöÒÓÔÕÖ':
 			Result = Result + 'O'
 		else:
 			Result = Result + Char

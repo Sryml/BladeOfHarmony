@@ -18,6 +18,7 @@ import string
 import Language
 import os
 import Menu
+import GameText
 
 import netgame
 import PanelFillerCommon
@@ -1107,24 +1108,19 @@ def SetGamepadDisconnectFunc(isDisconnect):
     global wDisconnectGamepadBox
 
     if isDisconnect == 1:
-        Scorer.wMessageFrame.RemoveWidget("MessageWidget",0)
-
         wDisconnectGamepadBox=BUIx.B_TextWidget(Scorer.wMessageFrame,"MessageWidget","\n\n\n\n\n",ScorerWidgets.font_server,Language.LetrasMenuBig)
-        wDisconnectGamepadBox.SetAlpha(1)
         wDisconnectGamepadBox.SetColor(255,255,255)
         wDisconnectGamepadBox.SetSolid(1)
-        wDisconnectGamepadBox.SetBackgroundAlpha(0.5)
-        wDisconnectGamepadBox.SetBackgroundColor(0,0,0)
-        wDisconnectGamepadBox.SetAutoScale(0)
-
-        import GameText
-        texto = GameText.Textos["Disconnect"][0]
-
-        wDisconnectGamepadBox.SetText(texto)
+        wDisconnectGamepadBox.SetText(" "+MenuText.GetMenuText("Gamepad disconnected")+" ")
         wDisconnectGamepadBox.SetJustification(BUIx.B_TextWidget.B_TEXT_HCenter)
-        wDisconnectGamepadBox.SetBackgroundAlpha(0.5)
+        wDisconnectGamepadBox.SetBackgroundAlpha(0.0)
         wDisconnectGamepadBox.SetBackgroundColor(0,0,0)
         wDisconnectGamepadBox.SetAlpha(1)
+        if not GameText.MapList.has_key(string.upper(Bladex.GetCurrentMap())):
+            scale = 0.8
+        else:
+            scale = 2
+        wDisconnectGamepadBox.SetScale(scale)
 
         Scorer.wMessageFrame.AddWidget(wDisconnectGamepadBox,0.5,50,
               BUIx.B_FrameWidget.B_FR_HRelative,
@@ -1134,6 +1130,8 @@ def SetGamepadDisconnectFunc(isDisconnect):
 
     elif isDisconnect == 0:
         Scorer.wMessageFrame.SetAlpha(0)
+        Scorer.wMessageFrame.RemoveWidget("MessageWidget",0)
+
 
     Scorer.wMessageFrame.RecalcLayout()
 

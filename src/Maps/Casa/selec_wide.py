@@ -685,7 +685,7 @@ def ActivateWiggetInfoChar():
     InfoCharWidget4.SetAlpha(0)
 
     Bladex.AddScheduledFunc(Bladex.GetTime() + 0.3,FadeTextInfo,())
-    Bladex.AddScheduledFunc(Bladex.GetTime() + 1.0,ScreenSelectionFinish,())
+    Bladex.AddScheduledFunc(Bladex.GetTime() + 0.3,ScreenSelectionFinish,())
 
     ActivateWidgetYesNo()
 
@@ -739,7 +739,7 @@ def CreateWidgetAreYouSure():
     SelectCharacterWidget.SetScale(BannerScale)
     SelectCharacterWidget.SetAlpha(1)
     SelectCharacterWidget.SetColor(128,128,128)
-    SelectCharacterWidget.SetText(MenuText.GetMenuText("Press arrows to choose character. Press enter to select"))
+    SelectCharacterWidget.SetText(MenuText.GetMenuText("Press arrows to choose character. Press ${\"ENTER\":Accept} to select"))
 
     if AreYouSureWidget == 0:
         AreYouSureWidget=BUIx.B_TextWidget(Scorer.wFrame,"AreYouSure","",ScorerWidgets.font_server,Language.LetrasMenuBig)

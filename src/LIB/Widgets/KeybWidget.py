@@ -18,7 +18,8 @@ import Language
 
 AdditionalKeysCallBack = None
 
-DefInfoText = "Press ${\"ENTER\":Accept} to define key, ${\"BACKSPACE\":RebindDelete} to delete bindings, ${\"ESC\":RebindCancel} to exit"
+DefInfoText = MenuText.GetMenuText("Press ${\"ENTER\":Accept} to define key, ${\"BACKSPACE\":RebindDelete} to delete bindings, ${\"ESC\":RebindCancel} to exit")
+
 
 ActionDescriptor= {
                    "Attack"        : "Used to kill, mutilate and destroy",
@@ -58,7 +59,7 @@ class B_ControlItemText(MenuWidget.B_MenuItemText):
     if self.GetVisible()==0:
       return
 
-    x=x+30
+    x=x+20
     y=y+20
 
     #self.SetAlpha(0.5)
@@ -126,7 +127,7 @@ class B_ControlItemText(MenuWidget.B_MenuItemText):
 
 class B_ControlItemTexts(BUIx.B_FrameWidget,MenuWidget.B_MenuTreeItem):
   def __init__(self,Parent,MenuDescr,StackMenu):
-    BUIx.B_FrameWidget.__init__(self,Parent,MenuDescr["Name"],400,32)
+    BUIx.B_FrameWidget.__init__(self,Parent,MenuDescr["Name"],450,32)
     MenuWidget.B_MenuTreeItem.__init__(self,MenuDescr,StackMenu)
     self.wActionName=B_ControlItemText(self,MenuDescr,StackMenu)
     self.wActionKeys=B_ControlItemText(self,MenuDescr,StackMenu)
@@ -417,10 +418,12 @@ class B_KeybListWidget(ListWidget.B_ListWidget):
     SaveListConfig()
     if AdditionalKeysCallBack:
        AdditionalKeysCallBack()
+    Raster.SetTextShadow(2, 2)
     ListWidget.B_ListWidget.__del__(self)
 
   def Draw(self,x,y,time):
     #pdb.set_trace()
+    Raster.SetTextShadow(0, 0)
     self.SetClipDraw(1)
     self.DefDraw(x,y,time)
 
